@@ -22,11 +22,8 @@ RUN bunx prisma generate
 # Create db directory
 RUN mkdir -p db
 
-# Build Next.js (standalone mode with static files)
+# Build Next.js (standalone mode)
 RUN bunx next build
-RUN mkdir -p .next/standalone/.next
-RUN cp -r .next/static .next/standalone/.next/
-RUN cp -r public .next/standalone/
 
 # =============================================
 # Stage 3: Production runner
@@ -36,9 +33,11 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Railway sets PORT dynamically - fallback to 3000
-ENV PORT=3000
+# Railway dynamically sets PORT - let it override
 ENV HOSTNAME="0.0.0.0"
+
+# Install required system deps for sharp/prisma
+RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs && \
@@ -47,6 +46,9 @@ RUN addgroup --system --gid 1001 nodejs && \
 # Copy standalone server output
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+
+# Copy custom server entry
+COPY --from=builder /app/server.js ./server.js
 
 # Copy Prisma schema + generated client
 COPY --from=builder /app/prisma ./prisma
