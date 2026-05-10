@@ -13,6 +13,7 @@ RUN npx prisma generate
 RUN npx next build
 RUN npx prisma db push --skip-generate
 
-# DO NOT set PORT - Railway injects it dynamically
+EXPOSE 3000
 
-CMD ["npx", "next", "start", "-H", "0.0.0.0"]
+# CRITICAL: next start does NOT read PORT env var, must pass -p explicitly
+CMD ["sh", "-c", "npx next start -H 0.0.0.0 -p ${PORT:-3000}"]
