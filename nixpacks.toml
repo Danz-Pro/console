@@ -5,12 +5,7 @@ nixPkgs = ["...", "openssl", "gcc", "sqlite"]
 cmds = ["bun install"]
 
 [phases.build]
-cmds = ["bunx prisma generate", "bunx next build", "mkdir -p .next/standalone/.next", "cp -r .next/static .next/standalone/.next/", "cp -r public .next/standalone/"]
+cmds = ["bun run build"]
 
 [phases.start]
-cmd = "cd .next/standalone && node server.js"
-
-[variables]
-NODE_ENV = "production"
-DATABASE_URL = "file:/data/custom.db"
-PORT = "3000"
+cmd = "bun run start"
