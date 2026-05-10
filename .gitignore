@@ -1,0 +1,11 @@
+node_modules/
+.next/
+db/
+*.db
+.env
+.env.local
+dev.log
+server.log
+.zscripts/
+download/
+*.log

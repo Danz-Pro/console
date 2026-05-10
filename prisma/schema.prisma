@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Bot {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  script      String
+  status      String   @default("stopped") // running, stopped, error
+  pid         String?
+  command     String   @default("node")
+  args        String   @default("")
+  envVars     String   @default("{}")
+  autoRestart Boolean  @default(false)
+  restartCount Int     @default(0)
+  lastStarted DateTime?
+  lastStopped DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  logs        BotLog[]
+}
+
+model BotLog {
+  id        String   @id @default(cuid())
+  botId     String
+  bot       Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+  level     String   @default("info") // info, warn, error, debug
+  message   String
+  source    String   @default("system")
+  createdAt DateTime @default(now())
+}
